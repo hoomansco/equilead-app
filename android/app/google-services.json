@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "205466417742",
+    "project_id": "koottam-hoomans",
+    "storage_bucket": "koottam-hoomans.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205466417742:android:4e5c6963900235ec07e11f",
+        "android_client_info": {
+          "package_name": "org.equilead.equilead"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj34ASGyznPi0AFQbypVi0Rtbd0LZC4v0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
