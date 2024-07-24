@@ -16,6 +16,7 @@ import 'package:equilead/widgets/animation/delay_animation.dart';
 import 'package:equilead/widgets/animation/press_effect.dart';
 import 'package:equilead/widgets/common/action_sheet.dart';
 import 'package:equilead/widgets/common/icon_wrapper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VouchPage extends ConsumerStatefulWidget {
   const VouchPage({super.key});
@@ -95,6 +96,21 @@ class _VouchPageState extends ConsumerState<VouchPage> {
       if (resp?.statusCode == 201) {
         await showSuccessModal();
         _getVouches();
+
+        var iosUrl =
+            "https://wa.me/?phone=${vouch.inviteePhoneNumber?.substring(1)}&text=${AppConstants.informTheyAreVouchedText}";
+        var androidUrl =
+            "whatsapp://send?phone=${vouch.inviteePhoneNumber?.substring(1)}&text=${AppConstants.informTheyAreVouchedText}";
+
+        try {
+          if (Platform.isIOS) {
+            await launchUrl(Uri.parse(iosUrl));
+          } else {
+            await launchUrl(Uri.parse(androidUrl));
+          }
+        } on Exception {
+          print("Whatsapp not installed");
+        }
       }
     }
   }
