@@ -105,7 +105,7 @@ class SplashScreenState extends ConsumerState<SplashScreen>
               child: Lottie.asset(
                 'assets/lottie/splash.json',
                 repeat: true,
-                frameRate: FrameRate(120),
+                frameRate: FrameRate.max,
                 controller: animationController,
                 onLoaded: (composition) {
                   animationController!
