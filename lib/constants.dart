@@ -20,6 +20,9 @@ class AppConstants {
   static String vouchWhatsappText =
       '?text=Hi%2C%0A%0AI%27m%20looking%20for%20someone%20to%20vouch%20for%20me%20for%20Equilead%20membership.%20Could%20you%20help%20me%20out%3F%20Thanks%20in%20advance%21';
 
+  static String informTheyAreVouchedText =
+      'Hey+there%21+Great+news+-+you%27ve+been+vouched+for+on+the+Equilead+app.+You+now+have+free+access+to+use+the+app+and+all+its+features.+Simply+download+Equilead+and+start+exploring.+Enjoy%21';
+
   static List<String> easterEggText = [
     'Hakuna Matata!',
     'Get your hands dirty!',
