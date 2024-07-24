@@ -170,12 +170,6 @@ PODS:
   - Mantle (2.2.0):
     - Mantle/extobjc (= 2.2.0)
   - Mantle/extobjc (2.2.0)
-  - Mixpanel-swift (4.2.0):
-    - Mixpanel-swift/Complete (= 4.2.0)
-  - Mixpanel-swift/Complete (4.2.0)
-  - mixpanel_flutter (2.2.0):
-    - Flutter
-    - Mixpanel-swift (= 4.2.0)
   - MTBBarcodeScanner (5.0.11)
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
@@ -218,7 +212,6 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
-  - mixpanel_flutter (from `.symlinks/plugins/mixpanel_flutter/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - rive_common (from `.symlinks/plugins/rive_common/ios`)
@@ -245,7 +238,6 @@ SPEC REPOS:
     - GoogleUtilities
     - libwebp
     - Mantle
-    - Mixpanel-swift
     - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
@@ -273,8 +265,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_timezone/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
-  mixpanel_flutter:
-    :path: ".symlinks/plugins/mixpanel_flutter/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   qr_code_scanner:
@@ -317,8 +307,6 @@ SPEC CHECKSUMS:
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
-  Mixpanel-swift: e5dd85295923e6a875acf17ccbab8d2ecb10ea65
-  mixpanel_flutter: ed1e5eaea382cbbaf655d20e23478211727ee011
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
