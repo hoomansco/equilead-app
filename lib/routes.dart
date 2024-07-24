@@ -30,7 +30,7 @@ final router = GoRouter(
     router.go('/');
   },
   routes: [
-    GoRoute(path: '/splash', builder: (context, state) => SplashScreen()),
+    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
     GoRoute(
       path: '/',
       // builder: (context, state) => MainNavigation(),
