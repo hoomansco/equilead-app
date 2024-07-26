@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
@@ -247,20 +248,17 @@ class _OpportunityDetailsState extends State<OpportunityDetails>
                             ),
                           ),
                         ),
-                        SizedBox(height: 24),
+                        SizedBox(
+                          height: 16,
+                        ),
                         DelayedAnimation(
                           delayedAnimation: 750,
                           aniOffsetX: 0,
                           aniOffsetY: -0.05,
                           aniDuration: 250,
-                          child: Text(
-                            _opportunity.description!,
-                            style: TextStyle(
-                              fontFamily: 'General Sans',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
+                          child: Html(
+                            data: _opportunity.description!,
+                            style: {"body": Style(margin: Margins.all(0))},
                           ),
                         ),
                         _opportunity.isVolunteering!

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -596,20 +597,14 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                                   aniDuration: 250,
                                   child: SizedBox(
                                     width: size.width * 0.85,
-                                    child: Text(
-                                      event.description!,
-                                      style: TextStyle(
-                                        fontFamily: 'General Sans',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Color(0xff7A7A7A),
-                                        height: 1.4,
-                                        letterSpacing: -0.4,
-                                      ),
+                                    child: Html(
+                                      data: event.description!,
+                                      style: {
+                                        "body": Style(margin: Margins.all(0))
+                                      },
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 24),
                                 DelayedAnimation(
                                   delayedAnimation: 350,
                                   aniOffsetX: 0,
