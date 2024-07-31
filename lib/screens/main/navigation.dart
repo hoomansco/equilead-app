@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:equilead/providers/checkinList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:equilead/screens/main/home_v2.dart';
@@ -150,8 +151,11 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                       iconPath: "assets/icons/space.svg",
                       title: "Space",
                       isSelected: selectedIndex == 1,
-                      onTap: () {
+                      onTap: () async {
                         onItemSelected(1);
+                        await ref
+                            .read(checkInListProvider.notifier)
+                            .getCheckInListData();
                       },
                     ),
                     Spacer(),

@@ -1,3 +1,4 @@
+import 'package:equilead/providers/checkinList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -198,17 +199,13 @@ class _SpaceCheckInState extends ConsumerState<SpaceCheckIn> {
                           tz.Location location = tz.local;
                           tz.TZDateTime scheduledDate =
                               tz.TZDateTime.from(scheduleTime, location);
-                          // NotificationService().scheduleNotification(
-                          //     scheduledNotificationDateTime: scheduledDate,
-                          //     title: "Time's up! Check-out time is approaching",
-                          //     body:
-                          //         "To ensure that everyone gets the opportunity to use this space, we recommend not using it for more than 4 hours in a single day.");
+
                           var checkinProvider =
                               ref.read(checkInProvider.notifier);
                           var isSuccess =
                               await checkinProvider.createCheckIn(checkIn);
                           if (isSuccess) {
-                            _showCheckInSuccessModal();
+                            await _showCheckInSuccessModal();
                           }
                         }
                       : showCheckinErrorModal
@@ -223,7 +220,7 @@ class _SpaceCheckInState extends ConsumerState<SpaceCheckIn> {
               borderRadius: BorderRadius.circular(50),
             ),
             child: isLoading
-                ? Center(
+                ? const Center(
                     child: SizedBox(
                       height: 20,
                       width: 20,
@@ -253,6 +250,7 @@ class _SpaceCheckInState extends ConsumerState<SpaceCheckIn> {
   Future<void> _showCheckInSuccessModal() async {
     Size size = MediaQuery.of(context).size;
     HapticFeedback.lightImpact();
+
     return showModalBottomSheet(
       isDismissible: false,
       isScrollControlled: true,

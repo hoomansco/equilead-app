@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:equilead/providers/checkinList.dart';
+import 'package:equilead/widgets/common/empty_state.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -57,35 +60,12 @@ class _SpacePageState extends ConsumerState<SpacePage> {
   @override
   void initState() {
     checkIfCheckedIn();
-    checkCrowded();
     getEvents();
-    // getSpaceContacts();
-    checkNight();
     getMarquee();
     getImpLinks();
+    fetchActiveCheckIns();
 
     super.initState();
-  }
-
-  Future<void> checkCrowded() async {
-    var resp = await NetworkUtils().httpGet("checkin/active");
-    print(resp!.body);
-    if (resp!.statusCode == 200) {
-      var data = (json.decode(resp.body) ?? []) as List;
-      if (data.length > 44) {
-        setState(() {
-          crowdedStatus = CrowdStatus.crowded;
-        });
-      } else if (data.length > 35) {
-        setState(() {
-          crowdedStatus = CrowdStatus.sparsely;
-        });
-      } else {
-        setState(() {
-          crowdedStatus = CrowdStatus.free;
-        });
-      }
-    }
   }
 
   Future<void> getImpLinks() async {
@@ -101,19 +81,8 @@ class _SpacePageState extends ConsumerState<SpacePage> {
     }
   }
 
-  Future<void> checkNight() async {
-    var currentTime = DateTime.now();
-    var evening = DateTime(
-        currentTime.year, currentTime.month, currentTime.day, 18, 30, 0, 0, 0);
-    var morning = DateTime(
-        currentTime.year, currentTime.month, currentTime.day, 5, 30, 0, 0, 0);
-
-    Future.delayed(Duration(milliseconds: 600), () {
-      setState(() {
-        _isNight =
-            currentTime.isAfter(evening) || currentTime.isBefore(morning);
-      });
-    });
+  Future<void> fetchActiveCheckIns() async {
+    await ref.read(checkInListProvider.notifier).getCheckInListData();
   }
 
   Future<void> getEvents() async {
@@ -160,18 +129,6 @@ class _SpacePageState extends ConsumerState<SpacePage> {
             "To ensure that everyone gets the opportunity to use this space, we recommend not using it for more than 4 hours in a single day.");
     checkIfCheckedIn();
   }
-
-  // Future<void> getSpaceContacts() async {
-  //   var resp = await NetworkUtils().httpGet("partner/space/contacts");
-  //   if (resp!.statusCode == 200) {
-  //     Iterable l = json.decode(resp.body);
-  //     List<PartnerContact> contacts = List<PartnerContact>.from(
-  //         l.map((model) => PartnerContact.fromJson(model))).toList();
-  //     setState(() {
-  //       spaceContacts = contacts;
-  //     });
-  //   }
-  // }
 
   Future<void> getMarquee() async {
     setState(() {
@@ -337,7 +294,7 @@ class _SpacePageState extends ConsumerState<SpacePage> {
                           height: ref.read(checkInProvider).id != null
                               ? spaceMarquee.text.isNotEmpty
                                   ? 278
-                                  : 240
+                                  : 150
                               : spaceMarquee.text.isNotEmpty
                                   ? 158
                                   : 120,
@@ -435,7 +392,7 @@ class _SpacePageState extends ConsumerState<SpacePage> {
                                             );
                                           },
                                           child: Container(
-                                            padding: EdgeInsets.fromLTRB(
+                                            padding: const EdgeInsets.fromLTRB(
                                                 12, 8, 12, 8),
                                             decoration: BoxDecoration(
                                               color: Colors.black,
@@ -444,7 +401,7 @@ class _SpacePageState extends ConsumerState<SpacePage> {
                                             ),
                                             child: Text(
                                               'Check-in'.toUpperCase(),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontFamily: 'General Sans',
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -560,43 +517,172 @@ class _SpacePageState extends ConsumerState<SpacePage> {
                   ],
                 ),
               ),
-              ref.read(checkInProvider).id != null
-                  ? SizedBox(height: 24)
-                  : SizedBox.shrink(),
-              SizedBox.shrink(),
-              SizedBox(height: 32),
-              // SingleChildScrollView(
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     mainAxisSize: MainAxisSize.min,
-              //     children: [
-              //       impLinks.isEmpty
-              //           ? SizedBox.shrink()
-              //           : SizedBox(
-              //               width: size.width,
-              //               child: ListView.separated(
-              //                 itemCount: impLinks.length,
-              //                 shrinkWrap: true,
-              //                 physics: NeverScrollableScrollPhysics(),
-              //                 padding: EdgeInsets.zero,
-              //                 itemBuilder: (context, index) => ImportantLink(
-              //                   title: impLinks[index].title!,
-              //                   url: impLinks[index].url!,
-              //                 ),
-              //                 separatorBuilder: (context, index) => Divider(
-              //                   height: 8,
-              //                   thickness: 1,
-              //                   color: Color(0xffEBEBEB),
-              //                 ),
-              //               ),
-              //             ),
-              //     ],
-              //   ),
-              // ),
-              SizedBox(height: 110),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Who are in now?",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        // Container(
+                        //   padding:
+                        //       EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(30),
+                        //     border: Border.all(
+                        //       width: 0.6,
+                        //       color: Colors.black,
+                        //     ),
+                        //   ),
+                        //   child: Text(
+                        //     'View all'.toUpperCase(),
+                        //     style: TextStyle(
+                        //       fontFamily: 'General Sans',
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.black,
+                        //       height: 1.2,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ref.watch(checkInListProvider).isNotEmpty
+                        ? ListView.separated(
+                            //TODO: change length to dynamic number
+                            itemCount: ref.watch(checkInListProvider).length,
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return CheckedInUserListItem(
+                                name: ref
+                                        .watch(checkInListProvider)[index]
+                                        .name ??
+                                    "",
+                                avatar: ref
+                                        .watch(checkInListProvider)[index]
+                                        .avatar ??
+                                    "",
+                                purpose: ref
+                                        .watch(checkInListProvider)[index]
+                                        .purpose ??
+                                    "",
+                              );
+                            },
+                            separatorBuilder: (context, index) => const Divider(
+                              height: 0.4,
+                              thickness: 1,
+                              color: Color.fromARGB(255, 235, 235, 235),
+                            ),
+                          )
+                        : const Padding(
+                            padding: EdgeInsets.only(top: 32),
+                            child: EmptyState(text: "No one's here"),
+                          )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 32, 0, 32),
+                child: Image.asset("assets/images/separator.png"),
+              ),
+              const SizedBox(
+                height: 100,
+              )
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CheckedInUserListItem extends StatelessWidget {
+  const CheckedInUserListItem({
+    super.key,
+    required this.name,
+    required this.avatar,
+    required this.purpose,
+  });
+
+  final String name;
+  final String avatar;
+  final String purpose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsetsDirectional.only(top: 20, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(avatar),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    purpose,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 87, 87, 87),
+                      fontSize: 12,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+          // Container(
+          //   padding: const EdgeInsets.fromLTRB(4, 4, 8, 4),
+          //   decoration: BoxDecoration(
+          //     color: const Color.fromARGB(255, 245, 245, 245),
+          //     borderRadius: BorderRadius.circular(30),
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       SvgPicture.asset(
+          //         "assets/icons/seeking-help-rounded.svg",
+          //       ),
+          //       const SizedBox(
+          //         width: 6,
+          //       ),
+          //       const Text(
+          //         "Seeking Help",
+          //         style: TextStyle(
+          //           fontSize: 12,
+          //           fontWeight: FontWeight.w600,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // )
+        ],
       ),
     );
   }
@@ -840,463 +926,6 @@ class _CheckInWidgetState extends ConsumerState<CheckInWidget> {
           text: 'Copied to clipboard',
         ),
       ),
-    );
-  }
-
-  Future<void> _showGpuAccessModal() async {
-    Size size = MediaQuery.of(context).size;
-    HapticFeedback.lightImpact();
-    return await showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      context: context,
-      elevation: 0,
-      builder: (context) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
-          color: Colors.transparent,
-          child: Container(
-            width: size.width - 32,
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(height: 12),
-                        SvgPicture.asset(
-                          "assets/icons/gpu_space.svg",
-                          height: 32,
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    IconWrapper(
-                      icon: "assets/icons/close.svg",
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'GPU access',
-                  style: TextStyle(
-                    fontFamily: 'General Sans',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 32),
-                _ListingContainer(
-                  '1',
-                  Text(
-                    'Connect to TinkerSpace Jio 5G',
-                    style: TextStyle(
-                      fontFamily: 'General Sans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                _ListingContainer(
-                  '2',
-                  Row(
-                    children: [
-                      Text(
-                        'Visit  ',
-                        style: TextStyle(
-                          fontFamily: 'General Sans',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      PressEffect(
-                        onPressed: () async {
-                          await Clipboard.setData(
-                            ClipboardData(text: "http://192.168.29.119"),
-                          );
-                          showCopySuccessModal();
-                        },
-                        child: Text(
-                          'http://192.168.29.119',
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff189CF1),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                _ListingContainer(
-                  '3',
-                  Text(
-                    'Start projects',
-                    style: TextStyle(
-                      fontFamily: 'General Sans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  margin: EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryGray1,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              fontFamily: 'General Sans',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          SizedBox(
-                            width: size.width * 0.68,
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        'Secret portal is open exclusively for the members of ',
-                                    style: TextStyle(
-                                      fontFamily: 'General Sans',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        launchUrl(
-                                          Uri.parse(
-                                              'https://github.com/tinkerhub'),
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      },
-                                    text: 'github.com/tinkerhub',
-                                    style: TextStyle(
-                                      fontFamily: 'General Sans',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xff189CF1),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              fontFamily: 'General Sans',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          SizedBox(
-                            width: size.width * 0.68,
-                            child: Text(
-                              "Power up your code with an RTX 4000 GPU it's in beast mode!",
-                              style: TextStyle(
-                                fontFamily: 'General Sans',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              fontFamily: 'General Sans',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          SizedBox(
-                            width: size.width * 0.68,
-                            child: Text(
-                              "Jump right into Al with PyTorch and TensorFlow preloaded.",
-                              style: TextStyle(
-                                fontFamily: 'General Sans',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showElectronicsComponentsModal() async {
-    Size size = MediaQuery.of(context).size;
-    HapticFeedback.lightImpact();
-    return await showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      context: context,
-      elevation: 0,
-      builder: (context) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
-          color: Colors.transparent,
-          child: Container(
-            width: size.width - 32,
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(height: 12),
-                        SvgPicture.asset(
-                          "assets/icons/electronic_space.svg",
-                          height: 32,
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    IconWrapper(
-                      icon: "assets/icons/close.svg",
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Electronic  components ',
-                  style: TextStyle(
-                    fontFamily: 'General Sans',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Scan to locate the components. Search the component name to find out the bin in which it is located.',
-                  style: TextStyle(
-                    fontFamily: 'General Sans',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 32),
-                _ListingContainer(
-                  '1',
-                  SizedBox(
-                    width: size.width * 0.65,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Find the components name from the Airtable list',
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        PressEffect(
-                          onPressed: () {
-                            launchUrl(
-                              Uri.parse('https://cutt.ly/zwPql7dX'),
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Component list'.toUpperCase(),
-                                  style: TextStyle(
-                                    fontFamily: 'General Sans',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(width: 4),
-                                SvgPicture.asset(
-                                  "assets/icons/arrow-top-right.svg",
-                                  height: 16,
-                                  width: 16,
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.white,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _ListingContainer(
-                  '2',
-                  SizedBox(
-                    width: size.width * 0.65,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Search the component you're looking for",
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _ListingContainer(
-                  '3',
-                  SizedBox(
-                    width: size.width * 0.65,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Check the bin number",
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _ListingContainer(
-                  '4',
-                  SizedBox(
-                    width: size.width * 0.65,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Open the specific bin labeled",
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _ListingContainer(
-                  '5',
-                  SizedBox(
-                    width: size.width * 0.65,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Register the project before you start to build",
-                          style: TextStyle(
-                            fontFamily: 'General Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -1546,7 +1175,7 @@ class _CheckInWidgetState extends ConsumerState<CheckInWidget> {
                     ),
                     SpaceNav(
                       flex: 11,
-                      title: 'Need help?',
+                      title: 'Coming soon',
                       iconPath: 'assets/icons/help_space.svg',
                       onTap: () {},
                     ),

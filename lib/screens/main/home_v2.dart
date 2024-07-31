@@ -330,50 +330,6 @@ class _HomeV2State extends ConsumerState<HomeV2>
                           ),
                         ),
                       ),
-                      // PressEffect(
-                      //   onPressed: () {
-                      //     MixpanelUtils().trackEvent("Tickets Clicked");
-
-                      //     context.go('/tickets');
-
-                      //     // Navigator.of(context).push(
-                      //     //   MaterialPageRoute(
-                      //     //     builder: (context) => MyMedalApp(),
-                      //     //   ),
-                      //     // );
-                      //   },
-                      //   child: Container(
-                      //     padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-                      //     decoration: BoxDecoration(
-                      //       color: Colors.transparent,
-                      //       borderRadius: BorderRadius.circular(30),
-                      //       border: Border.all(
-                      //         color: Colors.black,
-                      //         width: 1,
-                      //       ),
-                      //     ),
-                      //     child: Row(
-                      //       mainAxisSize: MainAxisSize.min,
-                      //       children: [
-                      //         Text(
-                      //           'My Tickets'.toUpperCase(),
-                      //           style: TextStyle(
-                      //             fontFamily: 'General Sans',
-                      //             fontSize: 12,
-                      //             fontWeight: FontWeight.w500,
-                      //             height: 0.5,
-                      //           ),
-                      //         ),
-                      //         SizedBox(width: 8),
-                      //         SvgPicture.asset(
-                      //           "assets/icons/tickets.svg",
-                      //           height: 13.2,
-                      //           width: 13.2,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -573,7 +529,7 @@ class _HomeV2State extends ConsumerState<HomeV2>
                             aniOffsetX: 0,
                             aniOffsetY: -0.18,
                             aniDuration: 250,
-                            child: Divider(
+                            child: const Divider(
                               height: 1,
                               thickness: 1,
                               color: Color(0xffEBEBEB),
